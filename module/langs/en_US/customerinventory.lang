@@ -1,0 +1,58 @@
+# Copyright (C) 2026 Zachary Melo
+
+# Module
+Module510200Name = Customer Inventory
+Module510200Desc = Shows all products and services purchased by a customer on their third-party card
+
+# Tab
+CustomerInventory = Customer Inventory
+
+# Grouping
+GroupBy = Group by:
+FlatList = Flat List
+ByOrder = By Sales Order
+ByInvoice = By Invoice
+ByProduct = By Product
+
+# Table headers
+ProductRef = Product Ref
+ProductName = Product
+ProductType = Type
+Quantity = Qty
+NetQuantity = Net Qty
+SerialNumber = Serial/Lot
+SourceDocument = Source
+ShipmentRef = Shipment
+OrderRef = Order
+InvoiceRef = Invoice
+DeliveryDate = Date
+InventoryStatus = Status
+
+# Status labels
+InInventory = In Inventory
+Returned = Returned
+PartialReturn = Partial Return
+Shipped = Shipped
+Invoiced = Invoiced
+
+# Types
+TypeProduct = Product
+TypeService = Service
+
+# Tooltip
+TooltipReturnsModule = Enable the Customer Returns module for return tracking and more accurate net quantity calculations.
+TooltipDismiss = Dismiss
+
+# Empty state
+NoItemsFound = No products or services found for this customer.
+
+# Admin
+CustomerInventorySetup = Customer Inventory Setup
+CustomerInventoryAbout = This module adds a Customer Inventory tab to the third-party card showing all products and services purchased by the customer.
+
+# Debug
+DebugMode = Debug Mode
+DebugModeDesc = When enabled, exposes a diagnostic endpoint at /custom/customerinventory/ajax/debug.php for troubleshooting inventory data, linked objects, and module configuration.
+
+# Permissions
+Permission510201a = View customer inventory tab on third-party cards
