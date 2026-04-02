@@ -18,9 +18,9 @@ ByProduct = By Product
 ProductRef = Product Ref
 ProductName = Product
 ProductType = Type
-Quantity = Qty
+CInvQuantity = Qty
 NetQuantity = Net Qty
-SerialNumber = Serial/Lot
+CInvSerialNumber = Serial/Lot
 SourceDocument = Source
 ShipmentRef = Shipment
 OrderRef = Order
@@ -30,10 +30,10 @@ InventoryStatus = Status
 
 # Status labels
 InInventory = In Inventory
-Returned = Returned
+CInvReturned = Returned
 PartialReturn = Partial Return
-Shipped = Shipped
-Invoiced = Invoiced
+CInvShipped = Shipped
+CInvInvoiced = Invoiced
 
 # Types
 TypeProduct = Product

@@ -153,6 +153,19 @@ $db->close();
 
 /**
  * Render flat sortable table with pagination
+ *
+ * @param array  $lines          Array of inventory line objects
+ * @param array  $returnData     Return data indexed by product and expeditiondet
+ * @param bool   $returnsEnabled Whether the returns module is active
+ * @param int    $socid          Third-party ID
+ * @param string $sortfield      Field used for sorting
+ * @param string $sortorder      Sort direction (ASC or DESC)
+ * @param int    $totalcount     Total number of inventory lines
+ * @param int    $limit          Number of lines per page
+ * @param int    $offset         SQL offset for pagination
+ * @param int    $page           Current page number
+ * @param string $groupby        Current groupby mode
+ * @return void
  */
 function renderFlatTable($lines, $returnData, $returnsEnabled, $socid, $sortfield, $sortorder, $totalcount, $limit, $offset, $page, $groupby)
 {
@@ -170,11 +183,11 @@ function renderFlatTable($lines, $returnData, $returnsEnabled, $socid, $sortfiel
 	print_liste_field_titre($langs->trans('ProductRef'), $baseurl, 'product_ref', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
 	print_liste_field_titre($langs->trans('ProductName'), $baseurl, 'product_label', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
 	print_liste_field_titre($langs->trans('ProductType'), $baseurl, 'product_type', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
-	print_liste_field_titre($langs->trans('Quantity'), $baseurl, 'qty', '', '&groupby='.$groupby, 'class="right"', $sortfield, $sortorder);
+	print_liste_field_titre($langs->trans('CInvQuantity'), $baseurl, 'qty', '', '&groupby='.$groupby, 'class="right"', $sortfield, $sortorder);
 	if ($returnsEnabled) {
 		print '<th class="liste_titre right">'.$langs->trans('NetQuantity').'</th>';
 	}
-	print '<th class="liste_titre">'.$langs->trans('SerialNumber').'</th>';
+	print '<th class="liste_titre">'.$langs->trans('CInvSerialNumber').'</th>';
 	print_liste_field_titre($langs->trans('ShipmentRef'), $baseurl, 'expedition_ref', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
 	print_liste_field_titre($langs->trans('OrderRef'), $baseurl, 'commande_ref', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
 	print_liste_field_titre($langs->trans('InvoiceRef'), $baseurl, 'facture_ref', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
@@ -193,6 +206,11 @@ function renderFlatTable($lines, $returnData, $returnsEnabled, $socid, $sortfiel
 
 /**
  * Render grouped by sales order
+ *
+ * @param array $lines          Array of inventory line objects
+ * @param array $returnData     Return data indexed by product and expeditiondet
+ * @param bool  $returnsEnabled Whether the returns module is active
+ * @return void
  */
 function renderGroupedByOrder($lines, $returnData, $returnsEnabled)
 {
@@ -255,6 +273,11 @@ function renderGroupedByOrder($lines, $returnData, $returnsEnabled)
 
 /**
  * Render grouped by invoice
+ *
+ * @param array $lines          Array of inventory line objects
+ * @param array $returnData     Return data indexed by product and expeditiondet
+ * @param bool  $returnsEnabled Whether the returns module is active
+ * @return void
  */
 function renderGroupedByInvoice($lines, $returnData, $returnsEnabled)
 {
@@ -316,6 +339,11 @@ function renderGroupedByInvoice($lines, $returnData, $returnsEnabled)
 
 /**
  * Render grouped by product
+ *
+ * @param array $lines          Array of inventory line objects
+ * @param array $returnData     Return data indexed by product and expeditiondet
+ * @param bool  $returnsEnabled Whether the returns module is active
+ * @return void
  */
 function renderGroupedByProduct($lines, $returnData, $returnsEnabled)
 {
@@ -357,11 +385,11 @@ function renderGroupedByProduct($lines, $returnData, $returnsEnabled)
 		}
 		print dol_escape_htmltag($group['label']);
 		print ' <span class="opacitymedium">('.$type_label.')</span>';
-		print ' &mdash; '.$langs->trans('Quantity').': <strong>'.((float) $group['total_qty']).'</strong>';
+		print ' &mdash; '.$langs->trans('CInvQuantity').': <strong>'.((float) $group['total_qty']).'</strong>';
 		if ($returnsEnabled) {
 			print ' &mdash; '.$langs->trans('NetQuantity').': <strong>'.max(0, $net_qty).'</strong>';
 			if ($returned_qty > 0) {
-				print ' <span class="opacitymedium">('.$returned_qty.' '.$langs->trans('Returned').')</span>';
+				print ' <span class="opacitymedium">('.$returned_qty.' '.$langs->trans('CInvReturned').')</span>';
 			}
 		}
 		print '</td></tr>';
@@ -378,6 +406,10 @@ function renderGroupedByProduct($lines, $returnData, $returnsEnabled)
 
 /**
  * Print table header for grouped modes
+ *
+ * @param bool $returnsEnabled Whether the returns module is active
+ * @param bool $sortable       Whether columns should be sortable
+ * @return void
  */
 function printGroupTableHeader($returnsEnabled, $sortable = false)
 {
@@ -387,11 +419,11 @@ function printGroupTableHeader($returnsEnabled, $sortable = false)
 	print '<th class="liste_titre">'.$langs->trans('ProductRef').'</th>';
 	print '<th class="liste_titre">'.$langs->trans('ProductName').'</th>';
 	print '<th class="liste_titre">'.$langs->trans('ProductType').'</th>';
-	print '<th class="liste_titre right">'.$langs->trans('Quantity').'</th>';
+	print '<th class="liste_titre right">'.$langs->trans('CInvQuantity').'</th>';
 	if ($returnsEnabled) {
 		print '<th class="liste_titre right">'.$langs->trans('NetQuantity').'</th>';
 	}
-	print '<th class="liste_titre">'.$langs->trans('SerialNumber').'</th>';
+	print '<th class="liste_titre">'.$langs->trans('CInvSerialNumber').'</th>';
 	print '<th class="liste_titre">'.$langs->trans('ShipmentRef').'</th>';
 	print '<th class="liste_titre">'.$langs->trans('OrderRef').'</th>';
 	print '<th class="liste_titre">'.$langs->trans('InvoiceRef').'</th>';
@@ -402,6 +434,11 @@ function printGroupTableHeader($returnsEnabled, $sortable = false)
 
 /**
  * Print a single inventory row (used by all rendering modes)
+ *
+ * @param object $line           Inventory line object
+ * @param array  $returnData     Return data indexed by product and expeditiondet
+ * @param bool   $returnsEnabled Whether the returns module is active
+ * @return void
  */
 function printInventoryRow($line, $returnData, $returnsEnabled)
 {
@@ -499,6 +536,11 @@ function printInventoryRow($line, $returnData, $returnsEnabled)
 
 /**
  * Get status badge HTML for an inventory line
+ *
+ * @param object $line           Inventory line object
+ * @param array  $returnData     Return data indexed by product and expeditiondet
+ * @param bool   $returnsEnabled Whether the returns module is active
+ * @return string HTML string for the status badge
  */
 function getInventoryStatusBadge($line, $returnData, $returnsEnabled)
 {
@@ -510,9 +552,9 @@ function getInventoryStatusBadge($line, $returnData, $returnsEnabled)
 
 	if (!$returnsEnabled) {
 		if ($line->source_type === 'invoiced') {
-			return '<span class="badge badge-status4">'.$langs->trans('Invoiced').'</span>';
+			return '<span class="badge badge-status4">'.$langs->trans('CInvInvoiced').'</span>';
 		}
-		return '<span class="badge badge-status4">'.$langs->trans('Shipped').'</span>';
+		return '<span class="badge badge-status4">'.$langs->trans('CInvShipped').'</span>';
 	}
 
 	// Check for returns — try expeditiondet level first
@@ -543,7 +585,7 @@ function getInventoryStatusBadge($line, $returnData, $returnsEnabled)
 	}
 
 	if ($returned_qty >= $qty) {
-		return '<span class="badge badge-status8">'.$langs->trans('Returned').'</span>'.$return_html;
+		return '<span class="badge badge-status8">'.$langs->trans('CInvReturned').'</span>'.$return_html;
 	}
 
 	return '<span class="badge badge-status1">'.$langs->trans('PartialReturn').'</span>'.$return_html;
