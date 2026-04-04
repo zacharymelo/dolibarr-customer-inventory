@@ -68,6 +68,41 @@ class ActionsCustomerinventory
 	}
 
 	/**
+	 * Count inventory lines for a given third party (used for tab badge).
+	 *
+	 * @param  int         $socid  Third party ID
+	 * @param  object|null $obj    Optional object context (unused)
+	 * @return int                 Count of distinct shipped products
+	 */
+	public function countForThirdparty($socid, $obj = null)
+	{
+		$socid = (int) $socid;
+		if ($socid <= 0) {
+			return 0;
+		}
+
+		// Count shipped product lines (1 per serial when batch-tracked, otherwise 1 per expeditiondet)
+		$sql = "SELECT COUNT(*) AS nb FROM (";
+		$sql .= "SELECT ed.rowid, edb.batch";
+		$sql .= " FROM ".MAIN_DB_PREFIX."expeditiondet ed";
+		$sql .= " INNER JOIN ".MAIN_DB_PREFIX."expedition e ON e.rowid = ed.fk_expedition";
+		$sql .= " INNER JOIN ".MAIN_DB_PREFIX."product p ON p.rowid = ed.fk_product";
+		$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."expeditiondet_batch edb ON edb.fk_expeditiondet = ed.rowid";
+		$sql .= " WHERE e.fk_soc = ".$socid;
+		$sql .= " AND e.fk_statut > 0";
+		$sql .= " AND e.entity IN (".getEntity('expedition').")";
+		$sql .= " GROUP BY ed.rowid, edb.batch";
+		$sql .= ") AS inventory";
+
+		$resql = $this->db->query($sql);
+		if ($resql) {
+			$row = $this->db->fetch_object($resql);
+			return (int) $row->nb;
+		}
+		return 0;
+	}
+
+	/**
 	 * Hook for additional actions on thirdparty card.
 	 * Placeholder for future expansion.
 	 *

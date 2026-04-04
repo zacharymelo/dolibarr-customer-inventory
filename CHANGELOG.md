@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.0] - 2026-04-04
+
+### Added
+- Badge count on Customer Inventory tab showing total inventory items for the third party
+
 ## [1.0.4] - 2026-04-04
 
 ### Fixed
