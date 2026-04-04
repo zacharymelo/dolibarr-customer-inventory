@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.1] - 2026-04-04
+
+### Fixed
+- Fix tab badge callback — use correct class name ActionsCustomerinventory in tab registration
+
 ## [1.1.0] - 2026-04-04
 
 ### Added

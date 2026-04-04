@@ -32,7 +32,7 @@ class modCustomerinventory extends DolibarrModules
 		$this->module_position = '91';
 		$this->name = preg_replace('/^mod/i', '', get_class($this));
 		$this->description = 'Shows all products and services purchased by a customer on their third-party card';
-		$this->version = '1.1.0';
+		$this->version = '1.1.1';
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 		$this->picto = 'product';
 
@@ -60,7 +60,7 @@ class modCustomerinventory extends DolibarrModules
 
 		// Tabs
 		$this->tabs = array();
-		$this->tabs[] = array('data' => 'thirdparty:+customerinventory:CustomerInventory,CustomerInventory,/customerinventory/class/actions_customerinventory.class.php,countForThirdparty:customerinventory@customerinventory:$user->hasRight(\'customerinventory\',\'inventory\',\'read\'):/customerinventory/inventory_tab.php?socid=__ID__');
+		$this->tabs[] = array('data' => 'thirdparty:+customerinventory:CustomerInventory,ActionsCustomerinventory,/customerinventory/class/actions_customerinventory.class.php,countForThirdparty:customerinventory@customerinventory:$user->hasRight(\'customerinventory\',\'inventory\',\'read\'):/customerinventory/inventory_tab.php?socid=__ID__');
 
 		// Permissions
 		$this->rights = array();
