@@ -9,8 +9,18 @@
 
 include_once DOL_DOCUMENT_ROOT.'/core/modules/DolibarrModules.class.php';
 
+/**
+ * Class modCustomerinventory
+ *
+ * Module descriptor for Customer Inventory
+ */
 class modCustomerinventory extends DolibarrModules
 {
+	/**
+	 * Constructor
+	 *
+	 * @param DoliDB $db Database handler
+	 */
 	public function __construct($db)
 	{
 		global $langs, $conf;
@@ -22,7 +32,7 @@ class modCustomerinventory extends DolibarrModules
 		$this->module_position = '91';
 		$this->name = preg_replace('/^mod/i', '', get_class($this));
 		$this->description = 'Shows all products and services purchased by a customer on their third-party card';
-		$this->version = '1.0.1';
+		$this->version = '1.0.2';
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 		$this->picto = 'product';
 
@@ -69,6 +79,12 @@ class modCustomerinventory extends DolibarrModules
 		$this->menu = array();
 	}
 
+	/**
+	 * Enable module
+	 *
+	 * @param  string $options Options when enabling module
+	 * @return int             1 if OK, 0 if KO
+	 */
 	public function init($options = '')
 	{
 		// No SQL tables to load
@@ -76,6 +92,12 @@ class modCustomerinventory extends DolibarrModules
 		return $this->_init(array(), $options);
 	}
 
+	/**
+	 * Disable module
+	 *
+	 * @param  string $options Options when disabling module
+	 * @return int             1 if OK, 0 if KO
+	 */
 	public function remove($options = '')
 	{
 		return $this->_remove(array(), $options);

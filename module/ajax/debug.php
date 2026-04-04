@@ -201,7 +201,6 @@ if ($socid > 0) {
 			print "  source=".$obj->fk_source." (".$obj->sourcetype.") -> target=".$obj->fk_target." (".$obj->targettype.")\n";
 		}
 	}
-
 } else {
 	print "--- No socid provided ---\n";
 	print "Pass ?socid=123 to diagnose a specific third-party's inventory data.\n";
