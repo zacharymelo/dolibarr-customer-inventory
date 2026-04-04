@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.4] - 2026-04-04
+
+### Fixed
+- Correct per-row qty when serial/batch tracked: show 1 per serial instead of full line qty
+
 ## [1.0.3] - 2026-04-04
 
 ### Fixed

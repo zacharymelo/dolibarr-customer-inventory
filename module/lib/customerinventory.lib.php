@@ -30,7 +30,7 @@ function fetchInventoryLines($db, $socid, $groupby = 'flat', $sortfield = 'deliv
 	// Part 1: Products shipped via expeditions
 	$sql_shipped = "SELECT p.rowid AS product_id, p.ref AS product_ref, p.label AS product_label,";
 	$sql_shipped .= " p.fk_product_type AS product_type,";
-	$sql_shipped .= " ed.qty AS qty, edb.batch AS serial_number,";
+	$sql_shipped .= " CASE WHEN edb.batch IS NOT NULL THEN 1 ELSE ed.qty END AS qty, edb.batch AS serial_number,";
 	$sql_shipped .= " e.rowid AS expedition_id, e.ref AS expedition_ref, e.date_delivery AS delivery_date,";
 	$sql_shipped .= " c.rowid AS commande_id, c.ref AS commande_ref,";
 	$sql_shipped .= " GROUP_CONCAT(DISTINCT f.rowid ORDER BY f.rowid SEPARATOR ',') AS facture_ids,";
