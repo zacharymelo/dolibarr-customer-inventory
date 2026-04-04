@@ -286,8 +286,8 @@ function renderGroupedByInvoice($lines, $returnData, $returnsEnabled)
 	$groups = array();
 	$no_invoice = array();
 	foreach ($lines as $line) {
-		if (!empty($line->facture_ref)) {
-			$key = $line->facture_ref.'|'.(int) $line->facture_id;
+		if (!empty($line->facture_refs)) {
+			$key = $line->facture_refs.'|'.$line->facture_ids;
 			if (!isset($groups[$key])) {
 				$groups[$key] = array();
 			}
@@ -512,12 +512,17 @@ function printInventoryRow($line, $returnData, $returnsEnabled)
 	}
 	print '</td>';
 
-	// Invoice ref (linked)
+	// Invoice ref(s) (linked)
 	print '<td class="nowraponall">';
-	if (!empty($line->facture_ref)) {
-		print '<a href="'.DOL_URL_ROOT.'/compta/facture/card.php?facid='.((int) $line->facture_id).'">';
-		print img_picto('', 'bill', 'class="pictofixedwidth"');
-		print dol_escape_htmltag($line->facture_ref).'</a>';
+	if (!empty($line->facture_refs)) {
+		$ids = explode(',', $line->facture_ids);
+		$refs = explode(',', $line->facture_refs);
+		$links = array();
+		foreach ($refs as $i => $ref) {
+			$fid = isset($ids[$i]) ? (int) $ids[$i] : 0;
+			$links[] = '<a href="'.DOL_URL_ROOT.'/compta/facture/card.php?facid='.$fid.'">'.img_picto('', 'bill', 'class="pictofixedwidth"').dol_escape_htmltag(trim($ref)).'</a>';
+		}
+		print implode('<br>', $links);
 	}
 	print '</td>';
 

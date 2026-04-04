@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3] - 2026-04-04
+
+### Fixed
+- Deduplicate inventory rows when an order has multiple invoices (GROUP_CONCAT aggregation)
+- Filter out blank product rows from shipment lines with no product linked
+- Show all linked invoices per row instead of duplicating the row
+
 ## [1.0.2] - 2026-04-03
 
 ### Fixed

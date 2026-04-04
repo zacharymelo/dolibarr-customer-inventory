@@ -154,7 +154,7 @@ if ($socid > 0) {
 			print " | Serial: ".($line->serial_number ?: '-');
 			print " | Shipment: ".($line->expedition_ref ?: '-');
 			print " | Order: ".($line->commande_ref ?: '-');
-			print " | Invoice: ".($line->facture_ref ?: '-');
+			print " | Invoice: ".($line->facture_refs ?: '-');
 			print " | Source: ".$line->source_type;
 			print "\n";
 		}

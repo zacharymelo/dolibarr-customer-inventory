@@ -33,12 +33,13 @@ function fetchInventoryLines($db, $socid, $groupby = 'flat', $sortfield = 'deliv
 	$sql_shipped .= " ed.qty AS qty, edb.batch AS serial_number,";
 	$sql_shipped .= " e.rowid AS expedition_id, e.ref AS expedition_ref, e.date_delivery AS delivery_date,";
 	$sql_shipped .= " c.rowid AS commande_id, c.ref AS commande_ref,";
-	$sql_shipped .= " f.rowid AS facture_id, f.ref AS facture_ref,";
+	$sql_shipped .= " GROUP_CONCAT(DISTINCT f.rowid ORDER BY f.rowid SEPARATOR ',') AS facture_ids,";
+	$sql_shipped .= " GROUP_CONCAT(DISTINCT f.ref ORDER BY f.rowid SEPARATOR ',') AS facture_refs,";
 	$sql_shipped .= " ed.rowid AS expeditiondet_id,";
 	$sql_shipped .= " 'shipped' AS source_type";
 	$sql_shipped .= " FROM ".MAIN_DB_PREFIX."expeditiondet ed";
 	$sql_shipped .= " INNER JOIN ".MAIN_DB_PREFIX."expedition e ON e.rowid = ed.fk_expedition";
-	$sql_shipped .= " LEFT JOIN ".MAIN_DB_PREFIX."product p ON p.rowid = ed.fk_product";
+	$sql_shipped .= " INNER JOIN ".MAIN_DB_PREFIX."product p ON p.rowid = ed.fk_product";
 	$sql_shipped .= " LEFT JOIN ".MAIN_DB_PREFIX."expeditiondet_batch edb ON edb.fk_expeditiondet = ed.rowid";
 	// Shipment -> Order via element_element
 	$sql_shipped .= " LEFT JOIN ".MAIN_DB_PREFIX."element_element ee_co ON ee_co.fk_target = e.rowid AND ee_co.targettype = 'shipping' AND ee_co.sourcetype = 'commande'";
@@ -49,6 +50,7 @@ function fetchInventoryLines($db, $socid, $groupby = 'flat', $sortfield = 'deliv
 	$sql_shipped .= " WHERE e.fk_soc = ".$socid;
 	$sql_shipped .= " AND e.fk_statut > 0";
 	$sql_shipped .= " AND e.entity IN (".getEntity('expedition').")";
+	$sql_shipped .= " GROUP BY ed.rowid, edb.batch, p.rowid, p.ref, p.label, p.fk_product_type, ed.qty, e.rowid, e.ref, e.date_delivery, c.rowid, c.ref";
 
 	// Part 2: Services invoiced but not shipped
 	$sql_services = "SELECT p.rowid AS product_id, p.ref AS product_ref, p.label AS product_label,";
@@ -56,7 +58,7 @@ function fetchInventoryLines($db, $socid, $groupby = 'flat', $sortfield = 'deliv
 	$sql_services .= " fd.qty AS qty, NULL AS serial_number,";
 	$sql_services .= " NULL AS expedition_id, NULL AS expedition_ref, f.datef AS delivery_date,";
 	$sql_services .= " NULL AS commande_id, NULL AS commande_ref,";
-	$sql_services .= " f.rowid AS facture_id, f.ref AS facture_ref,";
+	$sql_services .= " CAST(f.rowid AS CHAR) AS facture_ids, f.ref AS facture_refs,";
 	$sql_services .= " NULL AS expeditiondet_id,";
 	$sql_services .= " 'invoiced' AS source_type";
 	$sql_services .= " FROM ".MAIN_DB_PREFIX."facturedet fd";
@@ -78,7 +80,7 @@ function fetchInventoryLines($db, $socid, $groupby = 'flat', $sortfield = 'deliv
 	$sql .= " qty, serial_number,";
 	$sql .= " expedition_id, expedition_ref, delivery_date,";
 	$sql .= " commande_id, commande_ref,";
-	$sql .= " facture_id, facture_ref,";
+	$sql .= " facture_ids, facture_refs,";
 	$sql .= " expeditiondet_id, source_type";
 	$sql .= " FROM (".$sql_shipped." UNION ALL ".$sql_services.") AS inventory";
 
@@ -91,7 +93,7 @@ function fetchInventoryLines($db, $socid, $groupby = 'flat', $sortfield = 'deliv
 		'serial_number' => 'serial_number',
 		'delivery_date' => 'delivery_date',
 		'commande_ref' => 'commande_ref',
-		'facture_ref' => 'facture_ref',
+		'facture_ref' => 'facture_refs',
 		'expedition_ref' => 'expedition_ref',
 	);
 
@@ -100,7 +102,7 @@ function fetchInventoryLines($db, $socid, $groupby = 'flat', $sortfield = 'deliv
 			$sql .= " ORDER BY commande_ref ASC, delivery_date DESC";
 			break;
 		case 'invoice':
-			$sql .= " ORDER BY facture_ref ASC, delivery_date DESC";
+			$sql .= " ORDER BY facture_refs ASC, delivery_date DESC";
 			break;
 		case 'product':
 			$sql .= " ORDER BY product_ref ASC, delivery_date DESC";
