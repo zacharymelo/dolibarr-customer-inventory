@@ -8,25 +8,25 @@ Module510200Desc = Shows all products and services purchased by a customer on th
 CustomerInventory = Customer Inventory
 
 # Grouping
-GroupBy = Group by:
+CInvGroupBy = Group by:
 FlatList = Flat List
 ByOrder = By Sales Order
 ByInvoice = By Invoice
 ByProduct = By Product
 
 # Table headers
-ProductRef = Product Ref
+CInvProductRef = Product Ref
 ProductName = Product
-ProductType = Type
+CInvProductType = Type
 CInvQuantity = Qty
 NetQuantity = Net Qty
 CInvSerialNumber = Serial/Lot
 SourceDocument = Source
 ShipmentRef = Shipment
 OrderRef = Order
-InvoiceRef = Invoice
-DeliveryDate = Date
-InventoryStatus = Status
+CInvInvoiceRef = Invoice
+CInvDeliveryDate = Date
+CInvInventoryStatus = Status
 
 # Status labels
 InInventory = In Inventory

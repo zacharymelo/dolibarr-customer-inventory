@@ -134,7 +134,7 @@ if (!$returnsEnabled && !$tooltipDismissed) {
 // Groupby toolbar
 $baseurl = $_SERVER['PHP_SELF'].'?socid='.$socid;
 print '<div class="ci-groupby-bar tabsAction">';
-print '<span class="opacitymedium">'.$langs->trans('GroupBy').'</span> ';
+print '<span class="opacitymedium">'.$langs->trans('CInvGroupBy').'</span> ';
 $groupby_options = array(
 	'flat' => 'FlatList',
 	'order' => 'ByOrder',
@@ -200,9 +200,9 @@ function renderFlatTable($lines, $returnData, $returnsEnabled, $socid, $sortfiel
 
 	// Header
 	print '<tr class="liste_titre">';
-	print_liste_field_titre($langs->trans('ProductRef'), $baseurl, 'product_ref', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
+	print_liste_field_titre($langs->trans('CInvProductRef'), $baseurl, 'product_ref', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
 	print_liste_field_titre($langs->trans('ProductName'), $baseurl, 'product_label', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
-	print_liste_field_titre($langs->trans('ProductType'), $baseurl, 'product_type', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
+	print_liste_field_titre($langs->trans('CInvProductType'), $baseurl, 'product_type', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
 	print_liste_field_titre($langs->trans('CInvQuantity'), $baseurl, 'qty', '', '&groupby='.$groupby, 'class="right"', $sortfield, $sortorder);
 	if ($returnsEnabled) {
 		print '<th class="liste_titre right">'.$langs->trans('NetQuantity').'</th>';
@@ -210,9 +210,9 @@ function renderFlatTable($lines, $returnData, $returnsEnabled, $socid, $sortfiel
 	print '<th class="liste_titre">'.$langs->trans('CInvSerialNumber').'</th>';
 	print_liste_field_titre($langs->trans('ShipmentRef'), $baseurl, 'expedition_ref', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
 	print_liste_field_titre($langs->trans('OrderRef'), $baseurl, 'commande_ref', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
-	print_liste_field_titre($langs->trans('InvoiceRef'), $baseurl, 'facture_ref', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
-	print_liste_field_titre($langs->trans('DeliveryDate'), $baseurl, 'delivery_date', '', '&groupby='.$groupby, 'class="center"', $sortfield, $sortorder);
-	print '<th class="liste_titre center">'.$langs->trans('InventoryStatus').'</th>';
+	print_liste_field_titre($langs->trans('CInvInvoiceRef'), $baseurl, 'facture_ref', '', '&groupby='.$groupby, '', $sortfield, $sortorder);
+	print_liste_field_titre($langs->trans('CInvDeliveryDate'), $baseurl, 'delivery_date', '', '&groupby='.$groupby, 'class="center"', $sortfield, $sortorder);
+	print '<th class="liste_titre center">'.$langs->trans('CInvInventoryStatus').'</th>';
 	print '</tr>';
 
 	foreach ($lines as $line) {
@@ -436,9 +436,9 @@ function printGroupTableHeader($returnsEnabled, $sortable = false)
 	global $langs;
 
 	print '<tr class="liste_titre">';
-	print '<th class="liste_titre">'.$langs->trans('ProductRef').'</th>';
+	print '<th class="liste_titre">'.$langs->trans('CInvProductRef').'</th>';
 	print '<th class="liste_titre">'.$langs->trans('ProductName').'</th>';
-	print '<th class="liste_titre">'.$langs->trans('ProductType').'</th>';
+	print '<th class="liste_titre">'.$langs->trans('CInvProductType').'</th>';
 	print '<th class="liste_titre right">'.$langs->trans('CInvQuantity').'</th>';
 	if ($returnsEnabled) {
 		print '<th class="liste_titre right">'.$langs->trans('NetQuantity').'</th>';
@@ -446,9 +446,9 @@ function printGroupTableHeader($returnsEnabled, $sortable = false)
 	print '<th class="liste_titre">'.$langs->trans('CInvSerialNumber').'</th>';
 	print '<th class="liste_titre">'.$langs->trans('ShipmentRef').'</th>';
 	print '<th class="liste_titre">'.$langs->trans('OrderRef').'</th>';
-	print '<th class="liste_titre">'.$langs->trans('InvoiceRef').'</th>';
-	print '<th class="liste_titre center">'.$langs->trans('DeliveryDate').'</th>';
-	print '<th class="liste_titre center">'.$langs->trans('InventoryStatus').'</th>';
+	print '<th class="liste_titre">'.$langs->trans('CInvInvoiceRef').'</th>';
+	print '<th class="liste_titre center">'.$langs->trans('CInvDeliveryDate').'</th>';
+	print '<th class="liste_titre center">'.$langs->trans('CInvInventoryStatus').'</th>';
 	print '</tr>';
 }
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.3] - 2026-04-21
+
+### Fixed
+- Namespace 6 generic lang keys that collided with Dolibarr core — `GroupBy`, `ProductRef`, `ProductType`, `InvoiceRef`, `DeliveryDate`, `InventoryStatus` → `CInv*` variants. Custom wordings are preserved for the column headers and each no longer risks overriding core's value site-wide.
+
 ## [1.2.2] - 2026-04-21
 
 ### Added
