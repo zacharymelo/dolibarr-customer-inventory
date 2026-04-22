@@ -31,6 +31,7 @@ InventoryStatus = Status
 # Status labels
 InInventory = In Inventory
 CInvReturned = Returned
+CInvReshipped = Re-shipped
 PartialReturn = Partial Return
 CInvShipped = Shipped
 CInvInvoiced = Invoiced

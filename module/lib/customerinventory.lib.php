@@ -195,13 +195,13 @@ function getInventoryLineCount($db, $socid)
 function fetchReturnData($db, $socid)
 {
 	$socid = (int) $socid;
-	$result = array('by_product' => array(), 'by_expeditiondet' => array());
+	$result = array('by_product' => array(), 'by_expeditiondet' => array(), 'by_serial' => array());
 
 	if ($socid <= 0) {
 		return $result;
 	}
 
-	$sql = "SELECT crl.fk_product, crl.fk_expeditiondet, crl.qty,";
+	$sql = "SELECT crl.fk_product, crl.fk_expeditiondet, crl.qty, crl.serial_number,";
 	$sql .= " cr.ref AS return_ref, cr.rowid AS return_id";
 	$sql .= " FROM ".MAIN_DB_PREFIX."customer_return_line crl";
 	$sql .= " INNER JOIN ".MAIN_DB_PREFIX."customer_return cr ON cr.rowid = crl.fk_customer_return";
@@ -235,7 +235,7 @@ function fetchReturnData($db, $socid)
 				}
 			}
 
-			// By expeditiondet (for serial-level matching)
+			// By expeditiondet
 			if ($expeditiondet_id > 0) {
 				if (!isset($result['by_expeditiondet'][$expeditiondet_id])) {
 					$result['by_expeditiondet'][$expeditiondet_id] = array('returned_qty' => 0, 'returns' => array());
@@ -251,6 +251,22 @@ function fetchReturnData($db, $socid)
 				if (!$found) {
 					$result['by_expeditiondet'][$expeditiondet_id]['returns'][] = $return_info;
 				}
+			}
+
+			// By serial number — most precise matching for batch-tracked products
+			// where multiple serials share the same expeditiondet row.
+			// Stores fk_expeditiondet so the inventory tab can verify the return
+			// applies to this specific shipment (not a later re-shipment of the same serial).
+			$serial = isset($obj->serial_number) ? trim($obj->serial_number) : '';
+			if (!empty($serial)) {
+				if (!isset($result['by_serial'][$serial])) {
+					$result['by_serial'][$serial] = array('entries' => array());
+				}
+				$result['by_serial'][$serial]['entries'][] = array(
+					'returned_qty'    => $qty,
+					'fk_expeditiondet' => $expeditiondet_id,
+					'return_info'     => $return_info,
+				);
 			}
 		}
 		$db->free($resql);

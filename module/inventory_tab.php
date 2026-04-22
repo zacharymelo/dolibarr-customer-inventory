@@ -75,6 +75,26 @@ if ($returnsEnabled) {
 	$returnData = fetchReturnData($db, $socid);
 }
 
+// Build a lookup of serials that were re-shipped after being returned.
+// For each serial, track the latest shipment expedition_id so we can mark
+// earlier returned rows as "Re-shipped" instead of "Returned".
+$reshipIndex = array();
+foreach ($lines as $ln) {
+	if (empty($ln->serial_number) || empty($ln->expedition_id)) {
+		continue;
+	}
+	$sn = $ln->serial_number;
+	if (!isset($reshipIndex[$sn])) {
+		$reshipIndex[$sn] = array();
+	}
+	$reshipIndex[$sn][] = array(
+		'expedition_id' => (int) $ln->expedition_id,
+		'expedition_ref' => $ln->expedition_ref,
+		'delivery_date' => $ln->delivery_date,
+		'expeditiondet_id' => (int) $ln->expeditiondet_id,
+	);
+}
+
 // Check tooltip dismissal state
 $tooltipDismissed = false;
 $sql_tp = "SELECT value FROM ".MAIN_DB_PREFIX."user_param WHERE fk_user = ".((int) $user->id)." AND param = 'CUSTOMERINVENTORY_TOOLTIP_DISMISSED'";
@@ -475,13 +495,18 @@ function printInventoryRow($line, $returnData, $returnsEnabled)
 	// Net quantity (if returns enabled)
 	if ($returnsEnabled) {
 		$returned_qty = 0;
-		// Try expeditiondet-level first for precision, fall back to product-level
-		if ($expeditiondet_id > 0 && isset($returnData['by_expeditiondet'][$expeditiondet_id])) {
+		$serial_number = isset($line->serial_number) ? $line->serial_number : '';
+		// Try serial+expeditiondet level first (most precise for batch products)
+		if (!empty($serial_number) && isset($returnData['by_serial'][$serial_number])) {
+			foreach ($returnData['by_serial'][$serial_number]['entries'] as $entry) {
+				if ($entry['fk_expeditiondet'] == $expeditiondet_id || $expeditiondet_id <= 0) {
+					$returned_qty += $entry['returned_qty'];
+				}
+			}
+		} elseif (!empty($serial_number)) {
+			$returned_qty = 0;
+		} elseif ($expeditiondet_id > 0 && isset($returnData['by_expeditiondet'][$expeditiondet_id])) {
 			$returned_qty = $returnData['by_expeditiondet'][$expeditiondet_id]['returned_qty'];
-		} elseif ($product_id > 0 && isset($returnData['by_product'][$product_id])) {
-			// For product-level, we can't distribute exactly per line, show product total in flat mode
-			// This is an approximation; the grouped-by-product view is more accurate
-			$returned_qty = 0; // Don't subtract at line level to avoid confusion; show status badge instead
 		}
 		$net = max(0, $qty - $returned_qty);
 		print '<td class="right">'.$net.'</td>';
@@ -535,7 +560,7 @@ function printInventoryRow($line, $returnData, $returnsEnabled)
 
 	// Status
 	print '<td class="center nowraponall">';
-	print getInventoryStatusBadge($line, $returnData, $returnsEnabled);
+	print getInventoryStatusBadge($line, $returnData, $returnsEnabled, $reshipIndex);
 	print '</td>';
 }
 
@@ -545,15 +570,18 @@ function printInventoryRow($line, $returnData, $returnsEnabled)
  * @param object $line           Inventory line object
  * @param array  $returnData     Return data indexed by product and expeditiondet
  * @param bool   $returnsEnabled Whether the returns module is active
+ * @param array  $reshipIndex    Serial-number → list of shipments lookup for Re-shipped detection
  * @return string HTML string for the status badge
  */
-function getInventoryStatusBadge($line, $returnData, $returnsEnabled)
+function getInventoryStatusBadge($line, $returnData, $returnsEnabled, $reshipIndex = array())
 {
 	global $langs;
 
 	$product_id = (int) $line->product_id;
 	$qty = (float) $line->qty;
 	$expeditiondet_id = isset($line->expeditiondet_id) ? (int) $line->expeditiondet_id : 0;
+	$expedition_id = isset($line->expedition_id) ? (int) $line->expedition_id : 0;
+	$serial = isset($line->serial_number) ? $line->serial_number : '';
 
 	if (!$returnsEnabled) {
 		if ($line->source_type === 'invoiced') {
@@ -562,15 +590,36 @@ function getInventoryStatusBadge($line, $returnData, $returnsEnabled)
 		return '<span class="badge badge-status4">'.$langs->trans('CInvShipped').'</span>';
 	}
 
-	// Check for returns — try expeditiondet level first
+	// Check for returns — try serial+expeditiondet (most precise), then expeditiondet, then product
 	$returned_qty = 0;
 	$return_links = array();
 
-	if ($expeditiondet_id > 0 && isset($returnData['by_expeditiondet'][$expeditiondet_id])) {
+	if (!empty($serial) && isset($returnData['by_serial'][$serial])) {
+		// Serial-level: match only if the return's fk_expeditiondet belongs to this line's shipment
+		foreach ($returnData['by_serial'][$serial]['entries'] as $entry) {
+			if ($entry['fk_expeditiondet'] == $expeditiondet_id || $expeditiondet_id <= 0) {
+				$returned_qty += $entry['returned_qty'];
+				$ri = $entry['return_info'];
+				$found = false;
+				foreach ($return_links as $rl) {
+					if ($rl['id'] == $ri['id']) {
+						$found = true;
+						break;
+					}
+				}
+				if (!$found) {
+					$return_links[] = $ri;
+				}
+			}
+		}
+	} elseif (!empty($serial)) {
+		// Serialized line with no serial-level return match = not returned
+		$returned_qty = 0;
+	} elseif ($expeditiondet_id > 0 && isset($returnData['by_expeditiondet'][$expeditiondet_id])) {
 		$returned_qty = $returnData['by_expeditiondet'][$expeditiondet_id]['returned_qty'];
 		$return_links = $returnData['by_expeditiondet'][$expeditiondet_id]['returns'];
-	} elseif ($product_id > 0 && isset($returnData['by_product'][$product_id])) {
-		// Fall back to product level — show indicator but don't calculate exact net at line level
+	} elseif (empty($serial) && $product_id > 0 && isset($returnData['by_product'][$product_id])) {
+		// Product-level fallback for non-serialized lines only
 		$returned_qty = $returnData['by_product'][$product_id]['returned_qty'];
 		$return_links = $returnData['by_product'][$product_id]['returns'];
 	}
@@ -590,6 +639,24 @@ function getInventoryStatusBadge($line, $returnData, $returnsEnabled)
 	}
 
 	if ($returned_qty >= $qty) {
+		// Fully returned — but check if the same serial was re-shipped in a later shipment.
+		// If so, this row is superseded, not a current return.
+		if (!empty($serial) && !empty($reshipIndex[$serial])) {
+			$hasLaterShipment = false;
+			$laterRef = '';
+			foreach ($reshipIndex[$serial] as $entry) {
+				if ($entry['expedition_id'] != $expedition_id) {
+					// Different shipment for the same serial = re-shipped
+					$hasLaterShipment = true;
+					$laterRef = $entry['expedition_ref'];
+					break;
+				}
+			}
+			if ($hasLaterShipment) {
+				return '<span class="badge badge-status0">'.$langs->trans('CInvReshipped').'</span>'.$return_html;
+			}
+		}
+
 		return '<span class="badge badge-status8">'.$langs->trans('CInvReturned').'</span>'.$return_html;
 	}
 

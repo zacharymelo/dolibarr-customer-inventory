@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2] - 2026-04-21
+
+### Added
+- Serial-level return tracking — `fetchReturnData` now indexes returns by serial number (tracking `fk_expeditiondet`) so batch-tracked products with multiple serials per expeditiondet row can be matched precisely
+- "Re-shipped" status — a serial that was fully returned but appears in a later shipment now renders as `CInvReshipped` instead of `CInvReturned`, so re-sold units aren't misleadingly flagged as currently returned
+- Inventory row net qty + status badge both use the new serial+expeditiondet → expeditiondet → product matching hierarchy
+
 ## [1.1.1] - 2026-04-04
 
 ### Fixed
